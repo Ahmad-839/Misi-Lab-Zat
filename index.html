@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Misi Lab: Zat dan Perubahannya</title>
+<style>
+:root{--bg1:#e0f2fe;--bg2:#f0fdf4;--ink:#0f172a;--mut:#64748b;--card:#fff;--line:#e2e8f0;--pri:#0ea5e9;--ok:#10b981;--bad:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2));min-height:100vh}
+#app{max-width:820px;margin:0 auto;padding:14px 14px 60px}
+.card{background:var(--card);border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(15,23,42,.08);margin-bottom:14px}
+h1{font-size:1.6rem;margin:.2em 0}
+h2{font-size:1.15rem;margin:.2em 0 .6em}
+.mut{color:var(--mut);font-size:.9rem}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:11px 18px;background:var(--pri);color:#fff;font-weight:600;transition:transform .1s}
+button:active{transform:scale(.97)}
+button.ghost{background:#f1f5f9;color:var(--ink)}
+button:disabled{opacity:.5;cursor:not-allowed}
+input,textarea{font:inherit;width:100%;padding:12px;border:2px solid var(--line);border-radius:12px;background:#fff}
+input:focus,textarea:focus{outline:none;border-color:var(--pri)}
+label{display:block;font-weight:600;margin:12px 0 5px}
+.hero{text-align:center;padding:26px 18px}
+.hero .big{font-size:3.2rem;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.rules{text-align:left;font-size:.92rem;background:#f8fafc;border-radius:12px;padding:12px 16px;margin:14px 0}
+.rules li{margin:4px 0}
+.hud{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border-radius:16px;padding:10px 14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(15,23,42,.06)}
+.xp{flex:1;min-width:140px;display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700}
+.bar{flex:1;height:10px;background:#e2e8f0;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#10b981);border-radius:99px;transition:width .4s}
+.lvgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.lv{border-radius:16px;padding:14px;background:#fff;border-top:6px solid var(--c);box-shadow:0 3px 12px rgba(15,23,42,.07)}
+.lv .ic{font-size:2rem}
+.lv h3{margin:.3em 0;font-size:1rem}
+.lv button{background:var(--c);width:100%;margin-top:8px}
+.badge{font-size:.8rem;font-weight:700;color:var(--c)}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;padding:4px 12px;border-radius:99px;color:#fff;font-size:.8rem;font-weight:700;background:var(--c)}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:#fff;font-size:.8rem;font-weight:700;padding:0;color:var(--mut)}
+.dot.done{background:var(--c);border-color:var(--c);color:#fff}
+.dot.cur{outline:3px solid var(--c);outline-offset:2px}
+.q{font-size:1.05rem;line-height:1.55;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:#fff;color:var(--ink);border:2px solid var(--line);margin:8px 0;padding:12px;font-weight:500}
+.opt b{flex:0 0 28px;height:28px;border-radius:8px;background:#f1f5f9;display:grid;place-items:center;color:var(--ink)}
+.opt.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,#fff)}
+.opt.on b{background:var(--c);color:#fff}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
+.pop{animation:pop .25s}
+@keyframes pop{50%{transform:scale(1.02)}}
+.prem{display:flex;gap:10px;align-items:center;border:2px dashed var(--line);border-radius:12px;padding:10px;margin:8px 0;cursor:pointer;background:#fff}
+.prem.sel{border-color:var(--c);border-style:solid;background:color-mix(in srgb,var(--c) 8%,#fff)}
+.prem .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700}
+.prem .t{flex:1;font-size:.95rem}
+.prem .got{font-size:.8rem;background:var(--c);color:#fff;border-radius:8px;padding:3px 9px;font-weight:700;max-width:46%}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{background:#fff;color:var(--ink);border:2px solid var(--c);padding:7px 12px;border-radius:99px;font-size:.88rem}
+.chip.used{opacity:.35;text-decoration:line-through}
+.bs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.bs button{padding:22px;font-size:1.1rem;background:#fff;color:var(--ink);border:3px solid var(--line)}
+.bs button.on.t{background:var(--ok);border-color:var(--ok);color:#fff}
+.bs button.on.f{background:var(--bad);border-color:var(--bad);color:#fff}
+.score{font-size:3.4rem;font-weight:800;color:var(--pri);text-align:center}
+.cat{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.9rem}
+.cat .bar{height:12px}
+.cat span:first-child{flex:0 0 150px}
+.cat span:last-child{flex:0 0 64px;text-align:right;font-weight:700}
+details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:#fff}
+summary{cursor:pointer;font-weight:600;font-size:.92rem}
+.rv{font-size:.9rem;line-height:1.5;margin-top:8px}
+.rv .k{background:#ecfdf5;border-radius:8px;padding:6px 9px;margin:5px 0}
+.rv .s{background:#f8fafc;border-radius:8px;padding:6px 9px;margin:5px 0}
+.st{padding:10px 14px;border-radius:12px;font-weight:600;margin:10px 0}
+.st.ok{background:#ecfdf5;color:#047857}.st.warn{background:#fffbeb;color:#b45309}.st.bad{background:#fef2f2;color:#b91c1c}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.fb{border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.92rem;line-height:1.55}
+.fb.ok{background:#ecfdf5;color:#047857;font-weight:600}
+.fb.bad{background:#fef2f2;color:#991b1b}
+.fb.warn{background:#fffbeb;color:#92400e}
+.fb .fi{background:rgba(255,255,255,.8);color:var(--ink);border-radius:8px;padding:8px 10px;margin-top:8px;font-weight:400}
+.lock .opt,.lock .bs button,.lock .chip,.lock .prem{pointer-events:none}
+.lock .opt:not(.on),.lock .bs button:not(.on){opacity:.55}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============ PENGATURAN GURU ============ */
+const CONFIG = {
+  // Tempel URL Web App Google Apps Script di sini (lihat panduan). Jika kosong, siswa hanya bisa mengunduh hasil.
+  SHEET_URL: "https://script.google.com/macros/s/AKfycbx9hv_H8J6LRiPNGT_s3Xy6D2uEWAKviUNd5h_eQDWpnRptxqccpWxeUESc0QXAN890/exec",
+  BOBOT: { pg: 20, pgk: 20, ur: 20, jd: 20, bs: 20 }, // total 100
+  TAMPILKAN_PEMBAHASAN: true
+};
+
+/* ============ BANK SOAL ============ */
+const QS = {
+ pg: [
+  { q:"Sebuah zat padat putih memiliki titik leleh 801 °C. Dalam wujud padat zat ini tidak menghantarkan listrik, tetapi ketika meleleh atau dilarutkan dalam air, zat tersebut menghantarkan listrik dengan baik. Zat tersebut paling tepat digolongkan sebagai ...",
+    opts:["Unsur logam, karena titik lelehnya tinggi","Senyawa ion, karena tersusun dari ion-ion yang bebas bergerak saat meleleh atau larut","Campuran homogen, karena larut sempurna dalam air","Senyawa kovalen molekuler, karena berwujud padat berwarna putih","Unsur nonlogam, karena tidak menghantarkan listrik saat padat"], ans:1,
+    exp:"Senyawa ion (mis. NaCl): padatan tidak menghantar listrik karena ion terkunci di kisi kristal; saat leleh atau larut ion bebas bergerak. Logam justru menghantar listrik dalam wujud padat." },
+  { q:"Es 100 g bersuhu −10 °C dipanaskan dengan sumber kalor konstan hingga menjadi uap. Grafik suhu terhadap waktu memperlihatkan dua bagian mendatar (suhu tetap) pada 0 °C dan 100 °C. Pernyataan yang paling tepat tentang kalor pada bagian mendatar tersebut adalah ...",
+    opts:["Kalor hilang ke lingkungan sehingga suhu tidak naik","Kalor digunakan untuk memperbesar energi kinetik rata-rata partikel","Kalor digunakan untuk mengatasi gaya tarik antarpartikel sehingga terjadi perubahan wujud, bukan menaikkan suhu","Kalor diubah menjadi massa tambahan pada zat","Kalor tidak diserap karena zat berada dalam dua wujud sekaligus"], ans:2,
+    exp:"Pada peleburan dan penguapan, kalor (kalor laten) dipakai untuk memutus/mengatasi gaya antarpartikel (menambah energi potensial), sehingga energi kinetik rata-rata dan suhu tidak berubah." },
+  { q:"Sebuah logam bermassa 200 g dicelupkan seluruhnya ke gelas ukur berisi 50 mL air. Permukaan air naik hingga 75 mL. Jika massa jenis raksa 13,6 g/cm³, maka massa jenis logam dan perilakunya bila diletakkan di atas raksa adalah ...",
+    opts:["8 g/cm³; mengapung","8 g/cm³; tenggelam","2,67 g/cm³; mengapung","4 g/cm³; tenggelam","2,67 g/cm³; tenggelam"], ans:0,
+    exp:"Volume logam = 75 − 50 = 25 mL = 25 cm³. ρ = 200 g ÷ 25 cm³ = 8 g/cm³. Karena 8 < 13,6, logam mengapung di raksa." },
+  { q:"Suatu campuran terdiri atas serbuk besi, pasir halus, dan garam dapur. Urutan metode pemisahan yang paling tepat dan efisien untuk memperoleh ketiga komponen secara terpisah adalah ...",
+    opts:["Penyaringan → penguapan → pemisahan magnet","Pemisahan magnet → pelarutan dalam air dan penyaringan → penguapan filtrat","Distilasi → pemisahan magnet → penyaringan","Pelarutan dalam air → penguapan → pemisahan magnet","Kromatografi → penyaringan → sublimasi"], ans:1,
+    exp:"Besi diambil dengan magnet (sifat magnetik). Sisanya dilarutkan: pasir tidak larut sehingga tertinggal di kertas saring. Garam diperoleh dengan menguapkan air dari filtrat." },
+  { q:"Pita magnesium 2,4 g dibakar di cawan terbuka. Setelah selesai, abu putih yang tersisa bermassa 4,0 g. Seorang siswa menyimpulkan bahwa hukum kekekalan massa tidak berlaku. Tanggapan yang paling tepat adalah ...",
+    opts:["Siswa benar, sebab massa produk lebih besar daripada massa pereaksi","Siswa salah, sebab 1,6 g oksigen dari udara ikut bereaksi sehingga massa total pereaksi sama dengan massa produk","Siswa salah, sebab sebagian magnesium berubah menjadi energi","Siswa benar, sebab pada sistem terbuka hukum tersebut tidak berlaku","Siswa salah, sebab pembakaran magnesium hanya perubahan fisika"], ans:1,
+    exp:"Mg + O₂ → MgO. Oksigen dari udara (4,0 − 2,4 = 1,6 g) ikut bereaksi dan tidak ditimbang di awal. Massa pereaksi total (2,4 + 1,6) = massa produk (4,0), jadi hukum kekekalan massa tetap berlaku." },
+  { q:"Perhatikan peristiwa berikut: (1) kapur barus mengecil di dalam lemari, (2) susu berubah menjadi asam, (3) terbentuknya embun di daun, (4) kertas terbakar menjadi abu, (5) garam melarut dalam air, (6) irisan apel berubah cokelat. Kelompok peristiwa yang seluruhnya merupakan perubahan kimia adalah ...",
+    opts:["(1), (2), dan (4)","(2), (4), dan (6)","(3), (4), dan (5)","(1), (3), dan (5)","(2), (5), dan (6)"], ans:1,
+    exp:"Perubahan kimia (terbentuk zat baru): susu asam, pembakaran kertas, apel cokelat (oksidasi). Sublimasi, pengembunan, dan pelarutan garam adalah perubahan fisika." }
+ ],
+ pgk: [
+  { q:"Pilih SEMUA zat yang tergolong senyawa.",
+    opts:["Air (H₂O)","Ozon (O₃)","Amonia (NH₃)","Udara bersih","Glukosa (C₆H₁₂O₆)"], ans:[0,2,4],
+    exp:"Senyawa = dua unsur atau lebih berikatan kimia dengan perbandingan tetap: air, amonia, glukosa. Ozon adalah unsur (bentuk alotrop oksigen); udara adalah campuran." },
+  { q:"Pilih SEMUA pengamatan yang menunjukkan terjadinya reaksi kimia.",
+    opts:["Tablet effervescent dimasukkan ke air dan muncul gelembung gas CO₂","Air yang dipanaskan mengeluarkan gelembung saat mulai mendidih","Larutan AgNO₃ dicampur larutan NaCl dan terbentuk endapan putih","Gula dilarutkan dalam air dan suhunya tetap","Lilin meleleh dan menetes"], ans:[0,2],
+    exp:"Gas CO₂ dan endapan AgCl adalah zat baru. Gelembung saat mendidih adalah uap air (fisika), pelarutan gula dan pelelehan lilin juga perubahan fisika." },
+  { q:"Pilih SEMUA besaran yang termasuk sifat intensif (tidak bergantung pada jumlah zat).",
+    opts:["Massa jenis","Volume","Titik leleh","Massa","Kalor jenis"], ans:[0,2,4],
+    exp:"Sifat intensif tidak berubah walau jumlah zat berubah: massa jenis, titik leleh, kalor jenis. Massa dan volume adalah sifat ekstensif." },
+  { q:"Pilih SEMUA pernyataan yang BENAR tentang campuran.",
+    opts:["Larutan gula adalah campuran homogen","Komposisi suatu campuran selalu tetap","Komponen dalam campuran tetap mempertahankan sifat aslinya","Udara bersih adalah campuran homogen (larutan gas)","Komponen campuran hanya dapat dipisahkan melalui reaksi kimia"], ans:[0,2,3],
+    exp:"Komposisi campuran bervariasi (berbeda dengan senyawa), dan komponennya dipisah dengan cara fisika, bukan reaksi kimia." },
+  { q:"Dibandingkan zat cair, pilih SEMUA pernyataan yang BENAR tentang gas menurut teori partikel.",
+    opts:["Jarak antarpartikel gas jauh lebih besar","Gaya tarik antarpartikel gas lebih kuat","Partikel gas bergerak bebas ke segala arah","Gas memiliki volume tetap","Gas mudah dimampatkan karena banyak ruang kosong antarpartikel"], ans:[0,2,4],
+    exp:"Pada gas, gaya antarpartikel sangat lemah, jarak jauh, gerak bebas; volume dan bentuk mengikuti wadah sehingga gas mudah dimampatkan." },
+  { q:"Pilih SEMUA perubahan wujud yang MELEPASKAN kalor ke lingkungan.",
+    opts:["Air membeku menjadi es","Uap air mengembun","Air menguap","Es mencair","Uap air langsung menjadi bunga es (deposisi)"], ans:[0,1,4],
+    exp:"Perubahan menuju keteraturan partikel lebih tinggi melepas kalor: membeku, mengembun, deposisi. Menguap dan mencair menyerap kalor." }
+ ],
+ ur: [
+  { q:"Air yang dipanaskan terus-menerus suhunya tetap 100 °C selama mendidih, padahal sumber kalor tetap menyala. Jelaskan fenomena ini menggunakan teori partikel!",
+    groups:[/(kalor|energi|panas)/, /(gaya (tarik|antar)|antarpartikel|antar partikel|ikatan|memutus|mengatasi|melepaskan diri)/, /(energi potensial|kalor laten|perubahan wujud|tidak (me)?naik|bukan (untuk )?menaikkan)/, /(cair(an)? (menjadi|berubah)|uap|gas)/],
+    key:"Kalor yang diserap tidak menaikkan energi kinetik rata-rata (suhu), tetapi dipakai untuk mengatasi gaya tarik antarpartikel (menambah energi potensial) sehingga cairan berubah menjadi gas/uap. Suhu naik lagi setelah seluruh air menjadi uap." },
+  { q:"Bedakan perubahan fisika dan perubahan kimia disertai masing-masing satu contoh, lalu berikan minimal tiga bukti bahwa pembakaran kertas merupakan perubahan kimia!",
+    groups:[/tidak[^.]{0,40}zat (baru|lain|jenis baru)/, /(terbentuk|menghasilkan|membentuk|hasilkan)[^.]{0,30}zat (baru|lain|jenis baru)/, /(abu|arang|asap|karbon dioksida|co2|gas)/, /(kalor|panas|api|cahaya|suhu)/, /((tidak|tak) (dapat|bisa)[^.]{0,25}(kembali|semula)|irreversibel)/],
+    key:"Fisika: tidak terbentuk zat baru (mis. es mencair). Kimia: terbentuk zat baru (mis. besi berkarat). Bukti pembakaran kertas: terbentuk abu/gas CO₂ (zat baru), ada kalor dan cahaya, serta tidak dapat kembali menjadi kertas." },
+  { q:"Sebanyak 6 g magnesium dibakar sempurna dengan oksigen dan menghasilkan 10 g magnesium oksida. (a) Hitung massa oksigen yang bereaksi dan sebutkan hukum yang mendasarinya. (b) Jika 9 g magnesium direaksikan dengan 4 g oksigen, berapa gram MgO yang terbentuk dan zat apa yang bersisa (berapa gram)?",
+    groups:[/(\b4\s*(g|gram)\b|empat gram)/, /(kekekalan massa|lavoisier)/, /\b10\s*(g|gram)\b/, /((sisa|berlebih|tersisa)[^.]{0,50}\b3\s*(g|gram)|\b3\s*(g|gram)[^.]{0,50}(sisa|berlebih|tersisa))/, /(proust|perbandingan (tetap|massa)|3\s*[:\/]\s*2)/],
+    key:"(a) O₂ = 10 − 6 = 4 g; Hukum Kekekalan Massa (Lavoisier). (b) Perbandingan Mg : O = 6 : 4 = 3 : 2 (Hukum Proust). 4 g O₂ hanya bereaksi dengan 6 g Mg, sehingga terbentuk 10 g MgO dan tersisa 3 g Mg." },
+  { q:"Seorang pengrajin memiliki campuran minyak goreng, air, pasir, dan garam. Rancanglah langkah-langkah pemisahan keempat komponen tersebut dan sebutkan prinsip (perbedaan sifat) yang digunakan pada tiap langkah!",
+    groups:[/(saring|filtrasi|kertas saring)/, /(corong pisah|dekantasi|massa jenis|tidak bercampur|tidak larut)/, /(penguapan|menguapkan|diuapkan|kristalisasi|mengkristal|mengkristalkan)/, /(perbedaan (ukuran|massa jenis|titik didih|kelarutan)|kelarutan|ukuran partikel)/],
+    key:"Saring untuk memisahkan pasir (beda ukuran partikel). Filtrat berisi minyak dan air garam: pisahkan dengan corong pisah/dekantasi (minyak dan air tidak bercampur, massa jenis beda). Air garam diuapkan/dikristalkan untuk mendapatkan garam (air dapat ditampung dengan distilasi)." },
+  { q:"Jelaskan mengapa keringat yang menguap dapat mendinginkan tubuh, dan bedakan peristiwa menguap dengan mendidih!",
+    groups:[/((serap|menyerap|mengambil|melepaskan)[^.]{0,30}(kalor|panas|energi)|kalor (penguapan|laten))/, /(energi (kinetik )?(tinggi|besar|cukup)|partikel[^.]{0,30}(lepas|meninggalkan|keluar))/, /permukaan/, /(seluruh|semua bagian|titik didih|gelembung)/],
+    key:"Partikel air berenergi tinggi di permukaan kulit lepas menjadi uap dan membutuhkan kalor yang diserap dari tubuh sehingga tubuh terasa dingin. Menguap terjadi di permukaan pada berbagai suhu; mendidih terjadi di seluruh bagian zat cair (muncul gelembung) pada titik didih." },
+  { q:"Emas 24 karat sering disebut emas murni, sedangkan emas 18 karat lebih keras dan berwarna lebih kemerahan. Klasifikasikan keduanya (unsur, senyawa, atau campuran) beserta alasannya, lalu jelaskan mengapa sifat fisik keduanya berbeda!",
+    groups:[/(murni|100 ?%|99[,.]9|satu jenis atom|unsur)/, /(75 ?%|paduan|alloy|campuran|perak|tembaga)/, /(komposisi|bervariasi|kekerasan|titik leleh|warna|massa jenis)/, /(homogen|seragam|merata)/],
+    key:"Emas 24 karat ≈ unsur (hanya atom Au). Emas 18 karat = campuran homogen/paduan (±75% Au + Ag/Cu). Karena merupakan campuran dengan komposisi berbeda, sifat fisiknya (kekerasan, warna, titik leleh) berbeda dari emas murni." }
+ ],
+ jd: {
+  opts:["Menyublim","Mengembun","Reaksi pengendapan","Distilasi bertingkat","Kromatografi","Senyawa","Unsur","Campuran homogen"],
+  prem:[
+   { t:"Kapur barus di dalam lemari makin lama makin mengecil tanpa meninggalkan cairan.", ans:0 },
+   { t:"Larutan AgNO₃ dicampur larutan NaCl sehingga terbentuk padatan putih yang tidak larut.", ans:2 },
+   { t:"Pemisahan komponen minyak bumi (bensin, solar, kerosin) berdasarkan perbedaan titik didih.", ans:3 },
+   { t:"Pemisahan pigmen warna tinta spidol yang merambat pada kertas dengan kecepatan berbeda.", ans:4 },
+   { t:"Zat murni dari dua unsur atau lebih dengan perbandingan massa tetap, hanya dapat diuraikan melalui reaksi kimia.", ans:5 },
+   { t:"Zat murni yang tidak dapat diuraikan menjadi zat yang lebih sederhana dengan reaksi kimia biasa.", ans:6 }
+  ],
+  exp:["Padat → gas langsung = menyublim.","Terbentuk endapan AgCl = reaksi pengendapan (zat baru).","Beda titik didih fraksi minyak bumi = distilasi bertingkat.","Beda kecepatan merambat pada fase diam = kromatografi.","Dua unsur atau lebih, perbandingan tetap = senyawa.","Tidak dapat diuraikan lagi secara kimia biasa = unsur. (Pengecoh: mengembun dan campuran homogen.)"]
+ },
+ bs: [
+  { q:"Penambahan garam ke dalam air murni menyebabkan titik didih larutan menjadi lebih rendah dari 100 °C pada tekanan 1 atm.", ans:false,
+    exp:"Zat terlarut yang tidak mudah menguap justru menaikkan titik didih (dan menurunkan titik beku)." },
+  { q:"Perubahan wujud dari gas langsung menjadi padat tanpa melalui wujud cair disebut deposisi.", ans:true,
+    exp:"Contohnya terbentuknya bunga es pada kaca. Kebalikannya adalah menyublim." },
+  { q:"Pada reaksi kimia dalam sistem tertutup, jumlah atom setiap unsur sebelum dan sesudah reaksi sama, sehingga massa zat tetap.", ans:true,
+    exp:"Atom tidak musnah atau tercipta, hanya disusun ulang. Inilah dasar hukum kekekalan massa." },
+  { q:"Larutan tergolong campuran heterogen karena terdiri atas pelarut dan zat terlarut.", ans:false,
+    exp:"Larutan adalah campuran homogen: komposisinya seragam, zat terlarut tersebar merata sampai tingkat molekul/ion." },
+  { q:"Massa jenis suatu zat bergantung pada jumlah zat: semakin banyak zat, semakin besar massa jenisnya.", ans:false,
+    exp:"Massa jenis adalah sifat intensif; massa dan volume sama-sama bertambah sehingga perbandingannya (ρ = m/V) tetap." },
+  { q:"Sifat kimia suatu zat (misalnya mudah terbakar) hanya dapat diamati ketika zat tersebut berubah menjadi zat lain.", ans:true,
+    exp:"Sifat kimia menggambarkan kemampuan zat bereaksi, sehingga hanya tampak saat terjadi perubahan kimia (terbentuk zat baru)." }
+ ]
+};
+
+const CATS = ['pg','pgk','ur','jd','bs'];
+const LV = {
+  pg :{n:"Level 1 · Lab Pilihan Ganda", ic:"🧪", c:"#0ea5e9", t:"Pilih SATU jawaban yang paling tepat."},
+  pgk:{n:"Level 2 · Ruang Analisis", ic:"⚗️", c:"#8b5cf6", t:"Pilih SEMUA jawaban yang benar. Memilih jawaban yang salah akan mengurangi skor."},
+  ur :{n:"Level 3 · Ruang Penelitian", ic:"📝", c:"#f59e0b", t:"Jawab dengan penjelasan lengkap, gunakan istilah ilmiah dan angka bila perlu."},
+  jd :{n:"Level 4 · Stasiun Pasangan", ic:"🔗", c:"#10b981", t:"Ketuk sebuah pernyataan, lalu ketuk istilah yang cocok. Tersedia 8 istilah, hanya 6 yang dipakai."},
+  bs :{n:"Level 5 · Gerbang Fakta", ic:"⚖️", c:"#ef4444", t:"Tentukan apakah pernyataan Benar atau Salah."}
+};
+const BASE = {pg:1,pgk:7,ur:13,jd:19,bs:25};
+const SIZE = {pg:6,pgk:6,ur:6,jd:6,bs:6};
+const L = 'ABCDEFGH';
+const SCREENS = [];
+CATS.forEach(c=>{ if(c==='jd') SCREENS.push({c,i:0}); else for(let i=0;i<6;i++) SCREENS.push({c,i}); });
+
+/* ============ STATE ============ */
+const KEY = 'misi_zat_perubahan_v1';
+let S = {view:'login', nama:'', kelas:'', idx:0, sel:null, done:false, t0:null, status:'', payload:null, result:null,
+  chk:{pg:Array(6).fill(false),pgk:Array(6).fill(false),ur:Array(6).fill(false),jd:[false],bs:Array(6).fill(false)},
+  ans:{pg:Array(6).fill(null), pgk:Array(6).fill(0).map(()=>[]), ur:Array(6).fill(''), jd:Array(6).fill(null), bs:Array(6).fill(null)}};
+const $ = document.getElementById('app');
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{
+    if(location.search.includes('reset=1')){ localStorage.removeItem(KEY); return; }
+    const r = localStorage.getItem(KEY); if(r){ S = Object.assign(S, JSON.parse(r)); }
+  }catch(e){}
+}
+const esc = s => String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const lvStyle = c => `style="--c:${LV[c].c}"`;
+
+/* ============ PROGRES ============ */
+function isDone(c,i){
+  const a=S.ans[c][i];
+  if(c==='pgk') return a.length>0;
+  if(c==='ur') return a.trim()!=='';
+  return a!==null;
+}
+const catDone = c => S.ans[c].filter((_,i)=>isDone(c,i)).length;
+const totalDone = () => CATS.reduce((s,c)=>s+catDone(c),0);
+
+/* ============ SKOR ============ */
+function scoreAll(){
+  const r={pg:[],pgk:[],ur:[],jd:[],bs:[]};
+  QS.pg.forEach((q,i)=> r.pg.push(S.ans.pg[i]===q.ans?1:0));
+  QS.pgk.forEach((q,i)=>{
+    const sel=S.ans.pgk[i], right=sel.filter(x=>q.ans.includes(x)).length, wrong=sel.length-right;
+    r.pgk.push(Math.max(0,(right-wrong)/q.ans.length));
+  });
+  QS.ur.forEach((q,i)=>{
+    const t=S.ans.ur[i].toLowerCase(); let m=0; q.groups.forEach(g=>{ if(g.test(t)) m++; });
+    r.ur.push(m/q.groups.length);
+  });
+  QS.jd.prem.forEach((p,i)=> r.jd.push(S.ans.jd[i]===p.ans?1:0));
+  QS.bs.forEach((q,i)=> r.bs.push(S.ans.bs[i]===q.ans?1:0));
+  const cat={}; let nilai=0;
+  CATS.forEach(c=>{ const avg=r[c].reduce((a,b)=>a+b,0)/r[c].length; cat[c]=avg*CONFIG.BOBOT[c]; nilai+=cat[c]; });
+  return {items:r, cat, nilai};
+}
+function ansText(c,i){
+  const a=S.ans[c][i];
+  if(c==='pg') return a===null?'-':L[a];
+  if(c==='pgk') return a.length?a.slice().sort().map(x=>L[x]).join(','):'-';
+  if(c==='ur'){ let t=a.replace(/\s+/g,' ').trim(); if(!t) return '-'; if(/^[=+\-@]/.test(t)) t="'"+t; return t; }
+  if(c==='jd') return a===null?'-':L[a];
+  return a===null?'-':(a?'Benar':'Salah');
+}
+function buildPayload(){
+  const sc=scoreAll(), pad=n=>String(n).padStart(2,'0'), d=new Date();
+  const waktu=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const H=['Waktu','Nama Siswa','Kelas'], R=[waktu,S.nama,S.kelas], H2=H.slice(), R2=R.slice();
+  const pre={pg:'PG-',pgk:'PGK-',ur:'URAIAN-',jd:'JODOH-',bs:'BS-'};
+  CATS.forEach(c=>{ for(let i=0;i<6;i++){ H.push(pre[c]+(i+1)); R.push(ansText(c,i)); H2.push('Skor '+pre[c]+(i+1)); R2.push(Math.round(sc.items[c][i]*100)/100); } });
+  const nm={pg:'Skor Pilihan Ganda',pgk:'Skor PG Kompleks',ur:'Skor Uraian (otomatis)',jd:'Skor Menjodohkan',bs:'Skor Benar/Salah'};
+  CATS.forEach(c=>{ H.push(nm[c]+' (maks '+CONFIG.BOBOT[c]+')'); R.push(Math.round(sc.cat[c]*10)/10); });
+  H.push('NILAI AKHIR (0-100)'); R.push(Math.round(sc.nilai*10)/10);
+  return {main:{headers:H,row:R}, detail:{headers:H2,row:R2}, sc};
+}
+
+/* ============ NAVIGASI ============ */
+function go(v){ S.view=v; save(); render(); window.scrollTo(0,0); }
+function openCat(c){ S.idx=SCREENS.findIndex(s=>s.c===c); S.sel=null; S.view='q'; save(); render(); window.scrollTo(0,0); }
+function jump(i){ S.idx=i; S.sel=null; save(); render(); }
+function step(d){ const n=S.idx+d; if(n<0) return; if(n>=SCREENS.length){ go('map'); return; } S.idx=n; S.sel=null; save(); render(); window.scrollTo(0,0); }
+
+/* ============ AKSI JAWABAN ============ */
+function setPG(i,k){ if(S.chk.pg[i]) return; S.ans.pg[i]=k; save(); render(); }
+function togPGK(i,k){ if(S.chk.pgk[i]) return; const a=S.ans.pgk[i], p=a.indexOf(k); if(p>=0) a.splice(p,1); else a.push(k); save(); render(); }
+function setUR(i,v){ if(S.chk.ur[i]) return; S.ans.ur[i]=v; save(); const w=document.getElementById('wc'); if(w) w.textContent=v.trim()?v.trim().split(/\s+/).length+' kata':'0 kata'; }
+function selPrem(i){ if(S.chk.jd[0]) return; S.sel=(S.sel===i?null:i); render(); }
+function pickOpt(k){
+  if(S.chk.jd[0]) return;
+  const a=S.ans.jd;
+  if(S.sel===null){ const f=a.findIndex(x=>x===null); if(f<0){ return; } S.sel=f; }
+  const prev=a.indexOf(k); if(prev>=0) a[prev]=null;
+  a[S.sel]=k;
+  const nx=a.findIndex(x=>x===null); S.sel=nx<0?null:nx;
+  save(); render();
+}
+function clearPrem(i,e){ e.stopPropagation(); if(S.chk.jd[0]) return; S.ans.jd[i]=null; S.sel=i; save(); render(); }
+function setBS(i,v){ if(S.chk.bs[i]) return; S.ans.bs[i]=v; save(); render(); }
+
+/* ============ TAMPILAN ============ */
+function hud(){
+  const n=totalDone();
+  return `<div class="hud"><div>👩‍🔬 <b>${esc(S.nama)}</b> · ${esc(S.kelas)}</div>
+  <div class="xp"><span>⭐ ${n*10} XP</span><div class="bar"><i style="width:${n/30*100}%"></i></div><span>${n}/30</span></div>
+  <button class="ghost" onclick="go('map')">🗺️ Peta</button></div>`;
+}
+function renderLogin(){
+  $.innerHTML=`<div class="card hero"><div class="big">🧪</div>
+  <h1>Misi Lab: Zat dan Perubahannya</h1>
+  <div class="mut">PIPAS Kelas 10 · Asesmen Open Book</div>
+  <div class="rules"><b>Aturan Misi</b><ul>
+   <li>Ada <b>5 level</b>, masing-masing <b>6 soal</b> (total 30 butir).</li>
+   <li>Boleh membuka buku/catatan (open book), tetapi soal menuntut analisis, bukan sekadar hafalan.</li>
+   <li>Jawaban tersimpan otomatis. Tekan <b>🔍 Periksa Jawaban</b> untuk melihat kunci dan penjelasan jika salah; setelah diperiksa, jawaban terkunci.</li>
+   <li>Soal yang belum diperiksa masih bisa diubah sebelum menekan <b>Selesai &amp; Kirim</b>.</li>
+   <li>Kumpulkan XP ⭐ dan lencana 🏅 di setiap level!</li></ul></div>
+  <div style="text-align:left">
+   <label for="nm">Nama lengkap</label><input id="nm" placeholder="Contoh: Siti Aisyah" autocomplete="name">
+   <label for="kl">Kelas</label><input id="kl" placeholder="Contoh: X-2">
+  </div>
+  <p id="err" class="mut" style="color:#b91c1c"></p>
+  <button style="width:100%;padding:14px" onclick="doLogin()">🚀 Mulai Misi</button></div>`;
+}
+function doLogin(){
+  const n=document.getElementById('nm').value.trim(), k=document.getElementById('kl').value.trim();
+  if(n.length<3||!k){ document.getElementById('err').textContent='Isi nama lengkap dan kelas terlebih dahulu.'; return; }
+  S.nama=n; S.kelas=k; S.t0=Date.now(); go('map');
+}
+function renderMap(){
+  const cards=CATS.map(c=>{
+    const d=catDone(c), full=d===6;
+    return `<div class="lv" ${lvStyle(c)}><div class="ic">${LV[c].ic}</div><h3>${LV[c].n}</h3>
+    <div class="mut">${LV[c].t}</div>
+    <div class="badge" style="margin-top:8px">${full?'🏅 Lencana diraih!':d+' dari 6 terjawab'}</div>
+    <div class="bar" style="margin-top:6px"><i style="width:${d/6*100}%;background:var(--c)"></i></div>
+    <button onclick="openCat('${c}')">${d?'Lanjutkan':'Masuk'}</button></div>`;}).join('');
+  const left=30-totalDone();
+  $.innerHTML=hud()+`<div class="card"><h2>🗺️ Peta Misi</h2><div class="mut">Pilih level mana saja. Urutan bebas.</div></div>
+  <div class="lvgrid">${cards}</div>
+  <div class="card" style="margin-top:14px;text-align:center">
+   <div class="mut">${left?`Masih ada <b>${left}</b> butir yang belum dijawab.`:'Semua butir sudah terjawab. Periksa lagi jika perlu.'}</div>
+   <button style="margin-top:10px;padding:14px 22px;background:#10b981" onclick="finish()">✅ Selesai &amp; Kirim</button></div>`;
+}
+function checkItem(c,k){
+  if(c==='jd'){
+    const miss=S.ans.jd.filter(x=>x===null).length;
+    if(miss && !confirm('Masih ada '+miss+' pernyataan yang belum dijodohkan. Tetap periksa? Jawaban akan terkunci.')) return;
+  } else if(!isDone(c,k)){ alert('Jawab dulu sebelum memeriksa.'); return; }
+  S.chk[c][k]=true; save(); render();
+}
+function feedback(c,i){
+  const s=scoreAll().items[c][i];
+  if(c==='jd'){
+    const bad=QS.jd.prem.map((p,k)=>({p,k})).filter(o=>S.ans.jd[o.k]!==o.p.ans);
+    if(!bad.length) return '<div class="fb ok">✅ Semua pasangan benar! Kerja bagus.</div>';
+    return '<div class="fb bad">❌ '+bad.length+' pasangan belum tepat. Berikut jawaban yang benar:'+bad.map(o=>{
+      const g=S.ans.jd[o.k];
+      return '<div class="fi"><b>No. '+(BASE.jd+o.k)+'</b> — '+esc(o.p.t)+'<br><b>Jawabanmu:</b> '+(g===null?'(kosong)':esc(L[g]+'. '+QS.jd.opts[g]))+'<br><b>Jawaban benar:</b> '+esc(keyText('jd',o.k))+'<br><b>Penjelasan:</b> '+esc(QS.jd.exp[o.k])+'</div>';
+    }).join('')+'</div>';
+  }
+  if(s>=0.99) return '<div class="fb ok">✅ Jawabanmu benar!</div>';
+  const cls=s>0?'warn':'bad';
+  const head=c==='ur'?'🟡 Jawabanmu baru mencakup sebagian poin penting (skor otomatis '+Math.round(s*100)+'%). Bandingkan dengan jawaban model:'
+    : s>0?'🟡 Jawabanmu baru sebagian benar:':'❌ Jawabanmu belum tepat.';
+  return '<div class="fb '+cls+'">'+head+'<div class="fi"><b>'+(c==='ur'?'Jawaban model / penjelasan:':'Jawaban yang benar:')+'</b> '+esc(keyText(c,i))+'</div>'+
+    (c==='ur'?'':'<div class="fi"><b>Penjelasan:</b> '+esc(expText(c,i))+'</div>')+'</div>';
+}
+function renderQ(){
+  renderQ0();
+  const sc=SCREENS[S.idx], c=sc.c, i=sc.i, k=c==='jd'?0:i, locked=S.chk[c][k];
+  const card=$.querySelector('.card'), nav=card.querySelector('.nav');
+  nav.insertAdjacentHTML('beforebegin', locked ? feedback(c,i)
+    : `<button style="width:100%;margin-top:14px;background:#10b981" onclick="checkItem('${c}',${k})">🔍 Periksa Jawaban</button><div class="mut" style="text-align:center;margin-top:4px">Setelah diperiksa, jawaban terkunci.</div>`);
+  if(locked){ card.classList.add('lock'); const ta=card.querySelector('textarea'); if(ta) ta.readOnly=true; }
+}
+function renderQ0(){
+  const sc=SCREENS[S.idx], c=sc.c, i=sc.i, lv=LV[c];
+  const list=SCREENS.map((s,k)=>({s,k})).filter(o=>o.s.c===c);
+  const dots=c==='jd'?'':`<div class="dots">${list.map(o=>`<button class="dot ${isDone(c,o.s.i)?'done':''} ${o.k===S.idx?'cur':''}" onclick="jump(${o.k})">${BASE[c]+o.s.i}</button>`).join('')}</div>`;
+  let body='';
+  if(c==='pg'){ const q=QS.pg[i]; body=`<div class="q">${esc(q.q)}</div>`+q.opts.map((o,k)=>`<button class="opt ${S.ans.pg[i]===k?'on pop':''}" onclick="setPG(${i},${k})"><b>${L[k]}</b><span>${esc(o)}</span></button>`).join(''); }
+  if(c==='pgk'){ const q=QS.pgk[i]; body=`<div class="q">${esc(q.q)}</div>`+q.opts.map((o,k)=>`<button class="opt ${S.ans.pgk[i].includes(k)?'on pop':''}" onclick="togPGK(${i},${k})"><b>${S.ans.pgk[i].includes(k)?'✓':L[k]}</b><span>${esc(o)}</span></button>`).join(''); }
+  if(c==='ur'){ const q=QS.ur[i], t=S.ans.ur[i]; body=`<div class="q">${esc(q.q)}</div><textarea rows="8" placeholder="Tulis jawabanmu di sini..." oninput="setUR(${i},this.value)">${esc(t)}</textarea><div class="mut" id="wc" style="text-align:right">${t.trim()?t.trim().split(/\s+/).length:0} kata</div>`; }
+  if(c==='jd'){
+    const a=S.ans.jd;
+    body=`<div class="q"><b>Soal ${BASE.jd}–${BASE.jd+5}.</b> Jodohkan setiap pernyataan dengan istilah yang tepat.</div>`+
+    QS.jd.prem.map((p,k)=>`<div class="prem ${S.sel===k?'sel':''}" onclick="selPrem(${k})"><div class="n">${BASE.jd+k}</div><div class="t">${esc(p.t)}</div>${a[k]!==null?`<div class="got" onclick="clearPrem(${k},event)" title="Ketuk untuk menghapus">${L[a[k]]}. ${esc(QS.jd.opts[a[k]])} ✕</div>`:''}</div>`).join('')+
+    `<div class="mut" style="margin-top:10px">${S.sel!==null?`Memilih pernyataan <b>no. ${BASE.jd+S.sel}</b>. Ketuk istilah:`:'Ketuk sebuah pernyataan, lalu pilih istilah:'}</div>
+    <div class="chips">${QS.jd.opts.map((o,k)=>`<button class="chip ${a.includes(k)?'used':''}" onclick="pickOpt(${k})"><b>${L[k]}</b> ${esc(o)}</button>`).join('')}</div>`;
+  }
+  if(c==='bs'){ const q=QS.bs[i], v=S.ans.bs[i]; body=`<div class="q">${esc(q.q)}</div><div class="bs"><button class="t ${v===true?'on pop':''}" onclick="setBS(${i},true)">✅ BENAR</button><button class="f ${v===false?'on pop':''}" onclick="setBS(${i},false)">❌ SALAH</button></div>`; }
+  const numTxt=c==='jd'?`Soal ${BASE.jd}–${BASE.jd+5}`:`Soal ${BASE[c]+i} dari 30`;
+  $.innerHTML=hud()+`<div class="card" ${lvStyle(c)}><div class="qhead"><span class="tag">${lv.ic} ${lv.n}</span><span class="mut">${numTxt}</span></div>
+  <div class="mut" style="margin-top:8px">${lv.t}</div>${dots}${body}
+  <div class="nav"><button class="ghost" onclick="step(-1)" ${S.idx===0?'disabled':''}>← Sebelumnya</button>
+  <button onclick="step(1)" style="background:var(--c)">${S.idx===SCREENS.length-1?'Ke Peta 🗺️':'Berikutnya →'}</button></div></div>`;
+}
+
+/* ============ KIRIM & HASIL ============ */
+function finish(){
+  const left=30-totalDone();
+  const msg=left?`Masih ada ${left} butir yang belum dijawab. Tetap kirim sekarang?\n\nSetelah dikirim, jawaban tidak dapat diubah.`:'Kirim jawaban sekarang?\n\nSetelah dikirim, jawaban tidak dapat diubah.';
+  if(!confirm(msg)) return;
+  const p=buildPayload(); S.payload={main:p.main,detail:p.detail}; S.result={cat:p.sc.cat,nilai:p.sc.nilai,items:p.sc.items};
+  S.done=true; S.view='result'; S.status='sending'; save(); render(); window.scrollTo(0,0); send();
+}
+async function send(){
+  if(!CONFIG.SHEET_URL){ S.status='nourl'; save(); render(); return; }
+  S.status='sending'; render();
+  try{
+    await fetch(CONFIG.SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({main:S.payload.main,detail:S.payload.detail})});
+    S.status='sent';
+  }catch(e){ S.status='fail'; }
+  save(); render();
+}
+function downloadCSV(){
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const csv='\ufeff'+[S.payload.main.headers,S.payload.main.row].map(r=>r.map(q).join(',')).join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='Hasil_'+S.nama.replace(/\W+/g,'_')+'_'+S.kelas.replace(/\W+/g,'')+'.csv'; a.click();
+}
+function keyText(c,i){
+  if(c==='pg') return L[QS.pg[i].ans]+'. '+QS.pg[i].opts[QS.pg[i].ans];
+  if(c==='pgk') return QS.pgk[i].ans.map(k=>L[k]+'. '+QS.pgk[i].opts[k]).join('; ');
+  if(c==='ur') return QS.ur[i].key;
+  if(c==='jd') return L[QS.jd.prem[i].ans]+'. '+QS.jd.opts[QS.jd.prem[i].ans];
+  return QS.bs[i].ans?'Benar':'Salah';
+}
+function expText(c,i){ return c==='jd'?QS.jd.exp[i]:QS[c][i].exp; }
+function qText(c,i){ return c==='jd'?QS.jd.prem[i].t:QS[c][i].q; }
+function renderResult(){
+  const r=S.result, n=Math.round(r.nilai*10)/10;
+  const rank=n>=85?'🏆 Profesor Kimia':n>=70?'🥇 Ilmuwan Handal':n>=55?'🥈 Asisten Lab':'🥉 Peneliti Pemula';
+  const st={sending:'<div class="st warn">⏳ Mengirim jawaban...</div>',
+    sent:'<div class="st ok">✅ Jawaban sudah dikirim ke Google Sheet guru.</div>',
+    nourl:'<div class="st warn">⚠️ Tautan Google Sheet belum diatur oleh guru. Unduh hasil (CSV) dan serahkan kepada guru.</div>',
+    fail:'<div class="st bad">❌ Gagal mengirim (periksa koneksi internet).</div>'}[S.status]||'';
+  const bars=CATS.map(c=>`<div class="cat" ${lvStyle(c)}><span>${LV[c].ic} ${LV[c].n.split('· ')[1]}</span><div class="bar"><i style="width:${r.cat[c]/CONFIG.BOBOT[c]*100}%;background:var(--c)"></i></div><span>${(Math.round(r.cat[c]*10)/10)}/${CONFIG.BOBOT[c]}</span></div>`).join('');
+  let rev='';
+  if(CONFIG.TAMPILKAN_PEMBAHASAN){
+    rev='<h2 style="margin-top:20px">📖 Pembahasan</h2><div class="mut">Skor Uraian dihitung otomatis dari kata kunci; guru dapat memeriksa jawaban lengkapmu di Google Sheet.</div>';
+    CATS.forEach(c=>{ for(let i=0;i<6;i++){
+      const s=r.items[c][i], ic=s>=0.99?'✅':s>0?'🟡':'❌', mine=c==='ur'?esc(S.ans.ur[i]||'-'):esc(ansText(c,i));
+      const my=(c==='pg'||c==='pgk'||c==='jd')?ansText(c,i):null;
+      rev+=`<details><summary>${ic} Soal ${BASE[c]+i} · skor ${Math.round(s*100)/100}</summary><div class="rv"><div>${esc(qText(c,i))}</div>
+      <div class="s"><b>Jawabanmu:</b> ${c==='ur'?mine:(c==='bs'?mine:mine)}</div><div class="k"><b>Kunci:</b> ${esc(keyText(c,i))}</div><div><b>Pembahasan:</b> ${esc(expText(c,i))}</div></div></details>`;
+    }});
+  }
+  $.innerHTML=`<div class="card"><div class="mut" style="text-align:center">${esc(S.nama)} · ${esc(S.kelas)}</div>
+  <div class="score">${n}</div><div style="text-align:center;font-weight:700;margin-bottom:10px">${rank}</div>${st}${bars}
+  <div class="row" style="margin-top:14px">
+   <button onclick="downloadCSV()">⬇️ Unduh Hasil (CSV)</button>
+   ${S.status==='fail'?'<button style="background:#f59e0b" onclick="send()">🔁 Kirim Ulang</button>':''}
+  </div>${rev}</div>`;
+}
+function render(){
+  if(S.view==='login') return renderLogin();
+  if(S.view==='map') return renderMap();
+  if(S.view==='q') return renderQ();
+  if(S.view==='result') return renderResult();
+}
+load();
+if(S.done && S.status==='sending'){ S.status = CONFIG.SHEET_URL ? 'fail' : 'nourl'; }
+if(!S.nama) S.view='login';
+render();
+</script>
+</body>
+</html>
